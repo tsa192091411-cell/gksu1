@@ -1,0 +1,373 @@
+``html
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trắc nghiệm Lịch sử - 60 Câu Hỏi</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 30px;
+            font-size: 0.95rem;
+        }
+
+        .question-card {
+            background: #f9fafb;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .question-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #111827;
+        }
+
+        .options-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .option-item {
+            margin-bottom: 10px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+        }
+
+        .option-label:hover {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .option-label input {
+            margin-right: 12px;
+            accent-color: var(--primary);
+        }
+
+        .btn-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1e40af;
+        }
+
+        .correct-answer {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .incorrect-answer {
+            color: var(--error);
+            font-weight: bold;
+        }
+
+        .explanation {
+            font-size: 0.9rem;
+            margin-top: 8px;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Trắc Nghiệm Lịch Sử</h1>
+    <div class="subtitle">Hệ thống 60 câu hỏi (Xáo trộn ngẫu nhiên mỗi lần làm)</div>
+
+    <div id="quiz-form"></div>
+
+    <div class="btn-container">
+        <button class="btn" id="submit-btn" onclick="submitQuiz()">Nộp Bài</button>
+    </div>
+
+    <div id="result-section"></div>
+</div>
+
+<script>
+    // Dữ liệu 60 câu hỏi gốc
+    const rawData = [
+        { q: "Hiện thực lịch sử là gì?", opts: ["Các sự kiện được mô tả trong sách giáo khoa.", "Những gì con người tưởng tượng về quá khứ.", "Những câu chuyện được kể lại qua nhiều đời.", "Tất cả những gì đã diễn ra trong quá khứ."], ans: 3 },
+        { q: "Lịch sử được con người nhận thức là", opts: ["những gì con người mơ ước về lịch sử.", "cách con người trình bày, tái hiện về hiện thực lịch sử.", "những huyền thoại và truyền thuyết.", "những gì học sinh viết trong bài kiểm tra."], ans: 1 },
+        { q: "Toàn bộ những tri thức, hiểu biết, suy nghĩ của con người về quá khứ gọi là", opts: ["cách thức sưu tầm lịch sử.", "hiện thực khách quan lịch sử.", "lịch sử được con người nhận thức.", "phương pháp nghiên cứu lịch sử."], ans: 2 },
+        { q: "Nội dung nào sau đây là đối tượng nghiên cứu của Sử học?", opts: ["Những hoạt động của con người trong quá khứ.", "Quá trình hình thành và phát triển của vũ trụ.", "Những hoạt động của con người trong tương lai.", "Quá trình tiến hóa của các sinh vật trên trái đất."], ans: 0 },
+        { q: "\"Khôi phục lại hiện thực lịch sử một cách chính xác, khách quan\" là chức năng nào sau đây của Sử học?", opts: ["Khoa học.", "Xã hội.", "Giáo dục.", "Dự báo."], ans: 0 },
+        { q: "Một trong những nhiệm vụ quan trọng của Sử học là", opts: ["khám phá đại dương.", "hội nhập quốc tế.", "giáo dục, nêu gương.", "chinh phục vũ trụ."], ans: 2 },
+        { q: "Lịch sử được hiểu theo hai nghĩa nào sau đây?", opts: ["Hiện thực lịch sử và lịch sử cổ đại.", "Hiện thực lịch sử và lịch sử được con người nhận thức.", "Lịch sử dân tộc và lịch sử thế giới.", "Lịch sử truyền miệng và lịch sử được ghi chép."], ans: 1 },
+        { q: "Nhận thức lịch sử phụ thuộc vào yếu tố nào sau đây?", opts: ["Tư tưởng và đạo đức của người nghiên cứu.", "Tài chính của cá nhân.", "Sự sáng tạo của người viết sử.", "Mức độ nổi tiếng của một nhân vật lịch sử."], ans: 0 },
+        { q: "Sử học là gì?", opts: ["Nghệ thuật kể chuyện về quá khứ.", "Khoa học nghiên cứu về quá khứ của loài người.", "Một môn học giải trí trong trường.", "Lĩnh vực liên quan đến truyền thuyết dân gian."], ans: 1 },
+        { q: "Đối tượng nghiên cứu của Sử học là", opts: ["các huyền thoại.", "các nhân vật lịch sử hư cấu.", "toàn bộ quá khứ của loài người.", "các hiện tượng siêu nhiên trong lịch sử."], ans: 2 },
+        { q: "Sử học góp phần bồi dưỡng phẩm chất nào sau đây?", opts: ["Tự cao, tự đại.", "Thái độ dửng dưng.", "Lòng khoan dung, nhân ái.", "Tính ganh đua."], ans: 2 },
+        { q: "Một vai trò của Sử học là cung cấp tri thức khoa học giúp", opts: ["phán đoán người khác một cách khách quan.", "đưa ra các giải pháp kỹ thuật.", "nhận thức hiện thực lịch sử khách quan, chân thực.", "tạo nên các sản phẩm giải trí."], ans: 2 },
+        { q: "Sử học góp phần truyền bá", opts: ["tư tưởng mới trong nghệ thuật.", "giá trị và truyền thống tốt đẹp.", "các tôn giáo mới của khu vực.", "kỹ năng sinh tồn của con người trong quá khứ."], ans: 1 },
+        { q: "Sử học giúp rút ra những gì từ quá khứ?", opts: ["Những nhân vật nổi tiếng nhất.", "Bài học kinh nghiệm cho hiện tại.", "Những chi tiết gây tò mò.", "Những câu chuyện hấp dẫn để giải trí."], ans: 1 },
+        { q: "Khám phá lịch sử giúp chúng ta", opts: ["Quay về sống với quá khứ.", "Nhận ra sự nhàm chán của thời xưa.", "Hiểu những thành tựu và bài học của nhân loại.", "Thay đổi hiện thực lịch sử."], ans: 2 },
+        { q: "Hiểu biết về lịch sử - văn hóa Việt Nam và thế giới giúp chúng ta", opts: ["tránh tiếp xúc văn hóa ngoại lai.", "hòa nhập mà không hòa tan.", "bảo thủ, giữ gìn toàn bộ cái cũ.", "bắt chước các dân tộc khác."], ans: 1 },
+        { q: "Việc học lịch sử ngày nay có thể diễn ra thông qua", opts: ["chỉ qua giờ học trên lớp.", "chỉ cần học thuộc bài.", "không cần học, chỉ cần nghe người lớn kể.", "tham quan, xem phim, đọc sách lịch sử."], ans: 3 },
+        { q: "Khi tìm hiểu về lịch sử trường học của mình, em nên quan tâm đến", opts: ["Số lượng học sinh hiện tại.", "Thành tích thể thao của trường.", "Lịch sử hình thành, tên gọi, truyền thống của trường.", "Vị trí của trường trong xếp hạng của ngành giáo dục."], ans: 2 },
+        { q: "Kết nối lịch sử với cuộc sống có thể giúp", opts: ["phủ định hoàn toàn quá khứ.", "tránh lặp lại sai lầm cũ.", "quên đi các sự kiện đau thương.", "phản bác truyền thống dân tộc."], ans: 1 },
+        { q: "Đối tượng nghiên cứu của Sử học mang đặc điểm nào sau đây?", opts: ["Phổ cập.", "Toàn diện.", "Tâm linh.", "Hiện đại."], ans: 1 },
+        { q: "Toàn bộ những hình thức khác nhau của tư liệu lịch sử, chứa đựng những thông tin về quá khứ loài người được gọi là", opts: ["sử liệu.", "truyền thuyết.", "ngữ liệu.", "văn bản."], ans: 0 },
+        { q: "Một trong những yêu cầu quan trọng khi xử lý sử liệu là", opts: ["đảm bảo tính xác thực và giá trị thông tin.", "càng mơ hồ càng dễ sáng tạo.", "phải chọn sử liệu viết bằng tiếng nước ngoài.", "phải phù hợp với cảm xúc người đọc."], ans: 0 },
+        { q: "Tái hiện lịch sử một cách khách quan, trung thực, toàn diện là nhiệm vụ của", opts: ["nghệ sĩ.", "nhà sử học.", "học sinh.", "nhà làm phim."], ans: 1 },
+        { q: "Ngành khoa học nào đóng vai trò quan trọng nhất trong việc khẳng định giá trị của di sản?", opts: ["Sinh học.", "Sử học.", "Vật lý học.", "Văn học."], ans: 1 },
+        { q: "Một trong những khâu quan trọng trong nghiên cứu, học tập, tìm hiểu lịch sử là", opts: ["hạch toán kinh doanh.", "thu thập nguồn sử liệu.", "xây dựng phiếu điều tra.", "tiến hành thí nghiệm."], ans: 1 },
+        { q: "Lập danh mục sử liệu cần sưu tầm; tìm kiếm, thu thập thông tin liên quan đến đối tượng tìm hiểu là các bước cơ bản của quá trình", opts: ["xử lý thông tin sử liệu.", "tiến hành thí nghiệm lịch sử.", "sưu tầm, thu thập sử liệu.", "xác minh, đánh giá sử liệu."], ans: 2 },
+        { q: "Phân loại, đánh giá, thẩm định, so sánh nguồn sử liệu là các bước cơ bản của quá trình", opts: ["xử lý thông tin sử liệu.", "tiến hành thí nghiệm lịch sử.", "sưu tầm, thu thập sử liệu.", "tìm hiểu các di chỉ khảo cổ."], ans: 3 },
+        { q: "Nội dung nào sau đây là yếu tố cơ bản để xác định loài người bước vào thời kì văn minh?", opts: ["Chữ viết, nhà nước.", "Tín ngưỡng, tôn giáo.", "Công cụ bằng đá.", "Nguyên tắc công bằng."], ans: 0 },
+        { q: "Văn hoá là tổng thể những giá trị vật chất và tinh thần do con người sáng tạo ra", opts: ["trong tiến trình lịch sử.", "sau khi đã có chữ viết.", "sau khi xuất hiện nhà nước.", "trong các cuộc chiến tranh."], ans: 0 },
+        { q: "Nguồn tài nguyên quý báu của du lịch văn hóa là gì?", opts: ["Khí hậu và thời tiết.", "Lịch sử và văn hóa dân tộc.", "Địa điểm gần trung tâm thành phố.", "Mạng xã hội quảng bá."], ans: 1 },
+        { q: "Một trong những nguyên nhân dẫn đến sự ra đời sớm của lịch pháp và thiên văn ở Ai Cập cổ đại là do", opts: ["nhu cầu sản xuất trong nông nghiệp.", "nhu cầu tính toán trong xây dựng.", "nhu cầu ghi chép và lưu trữ thông tin.", "nhu cầu hội nhập quốc tế sâu rộng."], ans: 0 },
+        { q: "Yếu tố nào sau đây thúc đẩy sự ra đời sớm của những tri thức toán học ở Ai Cập cổ đại?", opts: ["Nhu cầu sáng tác văn học nghệ thuật.", "Nhu cầu tính toán trong xây dựng.", "Nhu cầu phát triển sản xuất nông nghiệp.", "Nhu cầu phát triển thương nghiệp."], ans: 1 },
+        { q: "Kim tự tháp là công trình kiến trúc tiêu biểu của nền văn minh cổ đại nào sau đây?", opts: ["La Mã.", "Ấn Độ.", "Hy Lạp.", "Ai Cập."], ans: 3 },
+        { q: "Hệ thống chữ viết cổ của người Ai Cập được gọi là", opts: ["chữ cái Latinh.", "chữ tượng hình.", "chữ Phạn.", "chữ Rô-ma."], ans: 1 },
+        { q: "Nguyên liệu làm giấy viết của người Ai Cập cổ đại chủ yếu được làm từ", opts: ["vỏ cây pa-pi-rút.", "đất sét ướt.", "mai rùa.", "vỏ cây tre."], ans: 0 },
+        { q: "Công trình nào sau đây là thành tựu điêu khắc tiêu biểu của cư dân Ai Cập cổ đại?", opts: ["Tượng Phật.", "Tượng La Hán.", "Tượng Nhân sư.", "Tượng Quan Âm."], ans: 2 },
+        { q: "Kim tự tháp là thành tựu của nền văn minh nào?", opts: ["Ai Cập.", "Trung Hoa.", "Lưỡng Hà.", "Ấn Độ."], ans: 0 },
+        { q: "Kĩ thuật ướp xác là một trong những thành tựu tiêu biểu của văn minh Ai Cập trên lĩnh vực nào?", opts: ["Thiên văn.", "Y học.", "Văn học.", "Kiến trúc."], ans: 1 },
+        { q: "Lĩnh vực nào sau đây của cư dân Ai Cập cổ đại đã được ứng dụng hiệu quả trong việc xây dựng kim tự tháp?", opts: ["Tôn giáo.", "Toán học.", "Tín ngưỡng.", "Chữ viết."], ans: 1 },
+        { q: "Văn minh là trạng thái phát triển cao của", opts: ["kinh tế.", "văn hóa.", "quân sự.", "giáo dục."], ans: 1 },
+        { q: "Một trong những nền văn minh phương Đông thời cổ đại là văn minh", opts: ["Hy Lạp.", "La Mã.", "Ai Cập.", "Tây Ban Nha."], ans: 2 },
+        { q: "Công trình kiến trúc nổi tiếng của Ai Cập cổ đại là", opts: ["Vạn Lý Trường Thành.", "Kim tự tháp.", "Đấu trường Cô-li-dê.", "Đền Pác-tê-nông."], ans: 1 },
+        { q: "Người Ai Cập cổ đại đã đạt được nhiều thành tựu trong lĩnh vực", opts: ["ướp xác.", "chế tạo động cơ hơi nước.", "sản xuất điện.", "chế tạo máy bay."], ans: 0 },
+        { q: "Kĩ thuật ướp xác là một trong những thành tựu tiêu biểu của văn minh Ấn Độ/Ai Cập trên lĩnh vực nào?", opts: ["Thiên văn.", "Y học.", "Văn học.", "Kiến trúc."], ans: 1 },
+        { q: "Loại chữ viết cổ của Trung Hoa là", opts: ["chữ tượng hình.", "chữ Hán.", "chữ Phạn.", "chữ La-tinh."], ans: 1 },
+        { q: "Bốn phát minh lớn của người Trung Hoa thời cổ - trung đại gồm giấy, kĩ thuật in, la bản và", opts: ["thuốc súng.", "kính thiên văn.", "máy hơi nước.", "động cơ điện."], ans: 0 },
+        { q: "Tư tưởng có ảnh hưởng sâu rộng trong xã hội Trung Hoa cổ đại là", opts: ["Nho giáo.", "Ki-tô giáo.", "Hồi giáo.", "Ấn Độ."], ans: 0 },
+        { q: "Tác phẩm của Tư Mã Thiên ghi lại lịch sử Trung Quốc từ thời Hoàng Đế đến thời ông sống, được coi là nền tảng sử học Trung Hoa thời phong kiến. Tác phẩm đó là", opts: ["Thủy hư.", "Hán thư.", "Tây du kí.", "Sử kí."], ans: 3 },
+        { q: "Phát minh kĩ thuật nào sau đây của người Trung Hoa có ảnh hưởng lớn đến sự phát triển của ngành hàng hải thế giới?", opts: ["La bàn.", "Thuốc súng.", "Kĩ thuật in.", "Làm giấy."], ans: 0 },
+        { q: "Thành tựu nào sau đây của nền văn minh Trung Hoa được công nhận là di sản văn hóa thế giới?", opts: ["Tháp Thạt Luồng.", "Vạn lí trường thành.", "Kim tự tháp.", "Đền Pác tê nông."], ans: 1 },
+        { q: "Lăng ta – giơ ma – han, Pháo đài Đỏ là những thành tựu tiêu biểu của văn minh Ấn Độ trên lĩnh vực nào sau đây?", opts: ["Văn học.", "Y học.", "Toán học.", "Kiến trúc."], ans: 3 },
+        { q: "Phát minh ra chữ số tự nhiên và số 0 là thành tựu nổi bật của nền văn minh nào sau đây?", opts: ["Ai Cập.", "Ấn Độ.", "Trung Quốc.", "Lưỡng Hà."], ans: 1 },
+        { q: "Nội dung nào sau đây là ý nghĩa của hệ tư tưởng Nho giáo đối với nền văn minh Trung Hoa?", opts: ["Tạo cơ sở phát triển cho nền văn minh phương Tây.", "Nền tảng tư tưởng của chế độ quân chủ Trung Hoa.", "Thúc đẩy sự phát triển mạnh mẽ của thương nghiệp.", "Tạo cơ sở cho sự phát triển của khoa học kĩ thuật."], ans: 1 },
+        { q: "Một trong những chữ viết cổ của người Trung Hoa là", opts: ["chữ Bra-mi.", "chữ giáp cốt.", "chữ Phạn.", "chữ La-tinh."], ans: 1 },
+        { q: "Loại hình văn học nổi tiếng nhất ở Trung Quốc dưới thời Đường là", opts: ["thơ.", "sử thi.", "kinh kịch.", "tiểu thuyết."], ans: 0 },
+        { q: "Cư dân Ấn Độ đã sớm tạo ra chữ viết riêng của mình, gọi là chữ", opts: ["La – tinh.", "Hán.", "Phạn.", "Nôm."], ans: 2 },
+        { q: "Phát minh ra chữ số tự nhiên và số 0 là thành tựu nổi bật của nền văn minh nào sau đây?", opts: ["Ai Cập.", "Ấn Độ.", "Trung Hoa.", "Lưỡng Hà."], ans: 1 },
+        { q: "Chữ viết chính thức hiện nay của Ấn Độ là", opts: ["chữ Hin-đi.", "chữ Nôm.", "chữ Bra-mi.", "chữ La-tinh."], ans: 0 },
+        { q: "Tôn giáo nào sau đây ra đời ở Ấn Độ?", opts: ["Nho giáo.", "Phật giáo.", "Đạo giáo.", "Ki-tô giáo."], ans: 1 },
+        { q: "Đóng góp quan trọng nhất của Toán học Ấn Độ là", opts: ["sáng tạo ra 10 chữ số.", "phát minh ra lịch dương.", "tìm ra định lí Py-ta-go.", "phát minh ra chữ tượng hình."], ans: 0 }
+    ];
+
+    let quizData = [];
+
+    // Hàm trộn mảng ngẫu nhiên (Fisher-Yates shuffle)
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // Khởi tạo và render bài trắc nghiệm với xáo trộn câu hỏi và đáp án
+    function initQuiz() {
+        // Xáo trộn thứ tự các câu hỏi
+        let shuffledQuestions = shuffleArray(rawData);
+
+        quizData = shuffledQuestions.map((item, qIndex) => {
+            // Lưu lại đáp án chữ (chuỗi) đúng ban đầu dựa trên index gốc
+            let originalCorrectText = item.opts[item.ans];
+
+            // Tạo danh sách các lựa chọn kèm theo trạng thái đúng/sai cũ
+            let optionsWithStatus = item.opts.map((opt, idx) => ({
+                text: opt,
+                isCorrect: idx === item.ans
+            }));
+
+            // Xáo trộn thứ tự các lựa chọn đáp án của câu hỏi này
+            let shuffledOptions = shuffleArray(optionsWithStatus);
+
+            // Tìm lại vị trí mới của đáp án đúng sau khi xáo trộn
+            let newCorrectIndex = shuffledOptions.findIndex(o => o.isCorrect);
+
+            return {
+                id: qIndex,
+                question: item.q,
+                options: shuffledOptions.map(o => o.text),
+                correct: newCorrectIndex
+            };
+        });
+
+        renderQuiz();
+    }
+
+    // Hiển thị câu hỏi ra HTML
+    function renderQuiz() {
+        const quizForm = document.getElementById('quiz-form');
+        let html = '';
+
+        quizData.forEach((q, index) => {
+            html += `
+                <div class="question-card" id="q-card-${index}">
+                    <div class="question-title">Câu ${index + 1}: ${q.question}</div>
+                    <ul class="options-list">
+            `;
+
+            q.options.forEach((opt, optIndex) => {
+                html += `
+                    <li class="option-item">
+                        <label class="option-label" id="label-${index}-${optIndex}">
+                            <input type="radio" name="question-${index}" value="${optIndex}">
+                            <span>${opt}</span>
+                        </label>
+                    </li>
+                `;
+            });
+
+            html += `
+                    </ul>
+                </div>
+            `;
+        });
+
+        quizForm.innerHTML = html;
+        document.getElementById('result-section').style.display = 'none';
+        document.getElementById('submit-btn').style.display = 'inline-block';
+    }
+
+    // Xử lý nộp bài và chấm điểm
+    function submitQuiz() {
+        let score = 0;
+        let unanswered = 0;
+
+        quizData.forEach((q, index) => {
+            const selectedOption = document.querySelector(`input[name="question-${index}"]:checked`);
+            const optionsList = document.querySelectorAll(`input[name="question-${index}"]`);
+            
+            // Disable các input sau khi nộp
+            optionsList.forEach(input => input.disabled = true);
+
+            if (!selectedOption) {
+                unanswered++;
+                // Tô đỏ câu chưa trả lời
+                document.getElementById(`q-card-${index}`).style.borderColor = '#ef4444';
+                return;
+            }
+
+            const selectedVal = parseInt(selectedOption.value);
+            const card = document.getElementById(`q-card-${index}`);
+
+            if (selectedVal === q.correct) {
+                score++;
+                card.style.borderColor = '#10b981';
+                card.style.backgroundColor = '#f0fdf4';
+                selectedOption.parentElement.style.backgroundColor = '#d1fae5';
+                selectedOption.parentElement.style.borderColor = '#10b981';
+            } else {
+                card.style.borderColor = '#ef4444';
+                card.style.backgroundColor = '#fef2f2';
+                // Đánh dấu đáp án sai người dùng chọn
+                selectedOption.parentElement.style.backgroundColor = '#fee2e2';
+                selectedOption.parentElement.style.borderColor = '#ef4444';
+
+                // Hiển thị thêm đáp án đúng cho người dùng dễ ôn tập
+                const correctLabel = document.getElementById(`label-${index}-${q.correct}`);
+                correctLabel.style.backgroundColor = '#d1fae5';
+                correctLabel.style.borderColor = '#10b981';
+            }
+        });
+
+        // Hiển thị kết quả
+        const resultSection = document.getElementById('result-section');
+        resultSection.style.display = 'block';
+        resultSection.innerHTML = `Kết quả của bạn: ${score} / ${quizData.length} câu đúng (${((score/quizData.length)*100).toFixed(1)}%)`;
+        
+        if (unanswered > 0) {
+            resultSection.innerHTML += `<br><span style="font-size: 0.9rem; color: #b45309;">(Bạn có ${unanswered} câu chưa chọn đáp án)</span>`;
+        }
+
+        // Đổi nút nộp bài thành nút làm lại để xáo trộn lần sau
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.innerText = 'Làm Lại (Xáo Trộn Mới)';
+        submitBtn.onclick = initQuiz;
+        
+        // Cuộn lên đầu xem kết quả
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }
+
+    // Chạy khởi tạo lần đầu khi tải trang
+    window.onload = initQuiz;
+</script>
+
+</body>
+</html>
+```
